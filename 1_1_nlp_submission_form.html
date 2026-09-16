@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title id="pageTitle">자연어처리 과제 제출 (1~15주차)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-0:#0A0D1C; --bg-1:#111633; --card:#151B3B; --card-border:#2A3266;
+    --text-0:#F1F3FC; --text-1:#A8AEDB; --text-2:#6C72A0;
+    --holo-a:#5EE7C7; --holo-b:#B48CFF; --holo-c:#FFC96B;
+    --ok:#5EE7C7; --err:#FF8A8A; --pending:#5C6294;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(circle at 15% 0%, #1B2354 0%, transparent 45%),
+      radial-gradient(circle at 90% 10%, #241C4A 0%, transparent 40%),
+      var(--bg-0);
+    color:var(--text-0); font-family:'Inter',sans-serif;
+    padding:48px 20px 80px;
+  }
+  .wrap{max-width:560px;margin:0 auto;}
+  .top-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;}
+  .eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--holo-a);font-weight:600;}
+  .lang-switch{display:flex;gap:4px;background:var(--bg-1);border:1px solid var(--card-border);border-radius:999px;padding:3px;flex-shrink:0;}
+  .lang-btn{
+    background:none;border:none;color:var(--text-2);font-size:12px;font-weight:600;padding:5px 12px;
+    border-radius:999px;cursor:pointer;font-family:'Space Grotesk',sans-serif;transition:background .15s,color .15s;
+  }
+  .lang-btn.active{background:linear-gradient(90deg,var(--holo-a),var(--holo-b));color:#0A0D1C;}
+  h1{font-family:'Space Grotesk',sans-serif;font-size:clamp(22px,4vw,30px);font-weight:700;margin:0 0 8px;line-height:1.3;}
+  .tagline{font-size:14px;font-weight:600;color:var(--holo-b);margin:0 0 14px;}
+  .sub{color:var(--text-1);font-size:14px;line-height:1.6;margin:0 0 28px;}
+
+  form{
+    position:relative;background:var(--card);border:1px solid var(--card-border);
+    border-radius:16px;padding:28px 24px;overflow:hidden;isolation:isolate;
+  }
+  form::before{
+    content:"";position:absolute;inset:0;
+    background:conic-gradient(from 180deg at 100% 0%, var(--holo-a), var(--holo-b), var(--holo-c), var(--holo-a));
+    opacity:.08;z-index:-1;
+  }
+  label{display:block;font-size:13px;font-weight:500;color:var(--text-1);margin:0 0 6px;}
+  .hint-label{font-size:12px;color:var(--text-2);font-weight:400;margin-left:6px;}
+  .field{margin-bottom:18px;}
+  .field-row{display:flex;gap:12px;}
+  .field-row .field{flex:1;}
+  select, input[type="text"], input[type="url"], input[type="password"], textarea{
+    width:100%;background:rgba(255,255,255,.03);border:1px solid var(--card-border);
+    color:var(--text-0);font-size:14px;padding:11px 12px;border-radius:8px;
+    font-family:inherit;outline:none;transition:border-color .15s;
+  }
+  textarea{resize:vertical;min-height:70px;line-height:1.5;}
+  select:focus, input:focus, textarea:focus{border-color:var(--holo-a);}
+  select option{background:#151B3B;color:#F1F3FC;}
+  select option:disabled{color:#6C72A0;}
+
+  .file-drop{
+    border:1px dashed var(--card-border);border-radius:8px;padding:20px 14px;
+    text-align:center;cursor:pointer;transition:border-color .15s,background .15s;
+    background:rgba(255,255,255,.02);
+  }
+  .file-drop:hover, .file-drop.drag{border-color:var(--holo-a);background:rgba(94,231,199,.05);}
+  .file-drop input{display:none;}
+  .file-drop .hint{font-size:12px;color:var(--text-2);margin-top:4px;}
+  .file-list{margin-top:10px;display:flex;flex-direction:column;gap:6px;}
+  .file-chip{
+    display:flex;align-items:center;justify-content:space-between;gap:8px;
+    background:rgba(94,231,199,.08);border:1px solid rgba(94,231,199,.25);
+    color:var(--holo-a);font-size:12px;padding:7px 10px;border-radius:6px;
+  }
+  .file-chip .fname{word-break:break-all;text-align:left;}
+  .file-chip .fsize{color:var(--text-2);flex-shrink:0;}
+  .file-chip button{
+    background:none;border:none;color:var(--err);cursor:pointer;font-size:14px;
+    flex-shrink:0;line-height:1;padding:2px 4px;
+  }
+  .clear-files{font-size:12px;color:var(--text-2);cursor:pointer;text-decoration:underline;text-underline-offset:2px;margin-top:8px;display:inline-block;}
+
+  button[type="submit"], button.secondary-btn{
+    width:100%;border:none;font-weight:700;font-size:14px;padding:13px;
+    border-radius:8px;cursor:pointer;font-family:'Space Grotesk',sans-serif;
+    margin-top:6px;transition:opacity .15s;
+  }
+  button[type="submit"]{background:linear-gradient(90deg,var(--holo-a),var(--holo-b));color:#0A0D1C;}
+  button:disabled{opacity:.5;cursor:not-allowed;}
+  button.secondary-btn{background:transparent;border:1px solid var(--card-border);color:var(--text-0);font-weight:500;}
+  #submit-status{margin-top:16px;font-size:13px;line-height:1.6;padding:10px 12px;border-radius:8px;display:none;}
+  #submit-status.show{display:block;}
+  #submit-status.ok{background:rgba(94,231,199,.1);color:var(--ok);border:1px solid rgba(94,231,199,.3);}
+  #submit-status.err{background:rgba(255,138,138,.1);color:var(--err);border:1px solid rgba(255,138,138,.3);}
+  #submit-status.loading{background:rgba(168,174,219,.1);color:var(--text-1);border:1px solid var(--card-border);}
+  .pw-toggle{font-size:12px;color:var(--holo-a);margin-top:8px;cursor:pointer;text-decoration:underline;text-underline-offset:2px;}
+  .pw-change{border:1px solid var(--card-border);border-radius:10px;padding:16px 14px 4px;margin-bottom:18px;background:rgba(255,255,255,.02);}
+  .status-link{
+    display:inline-flex;align-items:center;gap:6px;margin-top:20px;font-size:13px;
+    color:var(--text-1);text-decoration:none;border:1px solid var(--card-border);
+    padding:9px 14px;border-radius:999px;
+  }
+  .status-link:hover{border-color:var(--holo-a);color:var(--text-0);}
+  footer{margin-top:32px;font-size:12px;color:var(--text-2);line-height:1.7;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top-row">
+    <div class="eyebrow">Kimpo University · <span id="eyebrow-rest">자연어처리</span></div>
+    <div class="lang-switch">
+      <button class="lang-btn active" id="lang-en" data-lang="en">English</button>
+      <button class="lang-btn" id="lang-ko" data-lang="ko">한국어</button>
+    </div>
+  </div>
+  <h1 id="t-h1">자연어처리 과제 제출<br>(1주차 ~ 15주차)</h1>
+  <div class="tagline" id="t-tagline"></div>
+  <p class="sub" id="t-sub"></p>
+
+  <form id="submit-form">
+    <div class="field-row">
+      <div class="field">
+        <label id="t-studentIdLabel" for="studentSelect">학번</label>
+        <select id="studentSelect" required>
+          <option value="" disabled selected id="t-studentIdPlaceholderOpt">학번을 선택하세요</option>
+        </select>
+      </div>
+      <div class="field">
+        <label id="t-weekLabel" for="week">주차</label>
+        <select id="week" required></select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label id="t-nameLabel">이름</label>
+      <input type="text" id="nameDisplay" readonly>
+    </div>
+
+    <div class="field">
+      <label id="t-passwordLabel" for="password">비밀번호</label>
+      <input type="password" id="password" required autocomplete="off">
+      <div class="pw-toggle" id="pw-toggle"></div>
+    </div>
+
+    <div class="pw-change" id="pw-change" style="display:none;">
+      <div class="field">
+        <label id="t-newPasswordLabel" for="new-password">새 비밀번호</label>
+        <input type="password" id="new-password" autocomplete="off">
+      </div>
+      <div class="field">
+        <label id="t-newPasswordConfirmLabel" for="new-password-confirm">새 비밀번호 확인</label>
+        <input type="password" id="new-password-confirm" autocomplete="off">
+      </div>
+      <button type="button" id="pw-change-btn" class="secondary-btn"></button>
+    </div>
+
+    <div class="field">
+      <label id="t-filesLabel">제출 파일 <span class="hint-label" id="t-filesHint">(여러 개 가능)</span></label>
+      <div class="file-drop" id="drop-zone">
+        <div id="t-dropText">클릭하거나 파일을 끌어다 놓으세요</div>
+        <div class="hint" id="t-dropHint">여러 파일을 한 번에 또는 나눠서 추가할 수 있습니다</div>
+        <input type="file" id="file-input" multiple>
+      </div>
+      <div class="file-list" id="file-list"></div>
+      <span class="clear-files" id="clear-files" style="display:none;"></span>
+    </div>
+
+    <div class="field">
+      <label id="t-linkLabel" for="link">제출 링크 <span class="hint-label" id="t-linkHint">(선택, 주차당 1개)</span></label>
+      <input type="url" id="link">
+    </div>
+
+    <button type="submit" id="submit-btn"></button>
+    <div id="submit-status"></div>
+  </form>
+
+  <a class="status-link" href="2_1_nlp_submission_status.html" target="_blank" rel="noopener" id="t-statusLink">📊 제출 현황 확인하기</a>
+
+  <footer id="t-footer"></footer>
+</div>
+
+<script>
+// 배포한 Apps Script 웹 앱 URL을 여기에 붙여넣으세요.
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzA1FQIOuFwZICo8YwdIUYbIbf5r9TAtp_zSetgNgXcTbH_1cRJ4hfedGoHSegTrMYxuA/exec";
+const TOTAL_WEEKS = 15;
+
+// 학생 명단 (이름 / 학번) — 참고 시트: docs.google.com/spreadsheets/d/17OLNlgnhgS08UAW6SJ0Yj6f8CaToZBoQ
+// 명단이 바뀌면 이 배열과 2_1_nlp_submission_status.html / Code_nlp.gs.txt의 명단도 함께 수정하세요.
+const STUDENTS = [
+  { name: '구룽 비샬', id: '226116001' },
+  { name: '라나 마가르 사무얄', id: '226116002' },
+  { name: '라마 비샬', id: '226116003' },
+  { name: '라마 수만', id: '226116004' },
+  { name: '라마 아민', id: '226116005' },
+  { name: '만달 빔레쉬 쿠마르', id: '226116006' },
+  { name: '반다리 안질라', id: '226116007' },
+  { name: '밤 사우라브', id: '226116008' },
+  { name: '보하라 상잇', id: '226116009' },
+  { name: '샤르마 켐라쥐', id: '226116010' },
+  { name: '샹탄 아심', id: '226116011' },
+  { name: '수누와르 샨티', id: '226116012' },
+  { name: '아디카리 아르준', id: '226116013' },
+  { name: '알리쿨로브 아지즈벡', id: '226116014' },
+  { name: '올리 아빌라쉬', id: '226116015' },
+  { name: '카지 로잘', id: '226116016' },
+  { name: '타망 프라베쉬', id: '226116017' },
+  { name: '팬디 남라타', id: '226116018' },
+  { name: '팬디 비파나', id: '226116019' }
+];
+
+// ══════════ 번역 사전 ══════════
+const T = {
+  ko: {
+    pageTitle: '자연어처리 과제 제출 (1~15주차)',
+    eyebrowRest: '자연어처리',
+    h1: '자연어처리 과제 제출<br>(1주차 ~ 15주차)',
+    tagline: '1주차부터 15주차까지 과제 제출',
+    sub: '학번과 이름을 입력해 제출합니다. PPT/Word 등 제출 파일은 주차마다 개수가 달라도 되고 여러 개를 첨부할 수 있으며, 링크는 주차당 1개까지만 제출할 수 있습니다. 파일 또는 링크 중 최소 하나는 반드시 첨부해야 합니다.',
+    studentIdLabel: '학번',
+    studentIdPlaceholder: '학번을 선택하세요',
+    namePlaceholder: '학번을 선택하면 자동으로 표시됩니다',
+    nameLabel: '이름',
+    weekLabel: '주차',
+    weekPlaceholder: '주차를 선택하세요',
+    weekOpt: n => n + '주차',
+    passwordLabel: '비밀번호',
+    passwordPlaceholder: '처음 제출 시 입력한 비밀번호가 등록됩니다',
+    pwToggleShow: '비밀번호를 바꾸고 싶으신가요?',
+    pwToggleHide: '비밀번호 변경 취소',
+    newPasswordLabel: '새 비밀번호',
+    newPasswordPlaceholder: '새 비밀번호를 입력하세요',
+    newPasswordConfirmLabel: '새 비밀번호 확인',
+    newPasswordConfirmPlaceholder: '새 비밀번호를 다시 입력하세요',
+    pwChangeBtn: '비밀번호 변경하기',
+    filesLabel: '제출 파일',
+    filesHint: '(여러 개 가능, 형식 제한 없음)',
+    dropText: '클릭하거나 파일을 끌어다 놓으세요',
+    dropHint: '여러 파일을 한 번에 또는 나눠서 추가할 수 있습니다',
+    clearFiles: '전체 삭제',
+    removeAria: '삭제',
+    linkLabel: '제출 링크',
+    linkHint: '(선택, 주차당 1개)',
+    linkPlaceholder: 'https://ai-canvas.io/project/... 또는 https://colab.research.google.com/...',
+    submitBtn: '제출하기',
+    statusLink: '📊 제출 현황 확인하기',
+    footer: '학번은 중복 없이 고유해야 하며, 처음 제출 시 입력한 비밀번호가 해당 학번의 비밀번호로 등록됩니다.',
+    msgEnterId: '학번을 선택하세요.',
+    msgEnterName: '이름을 입력하세요.',
+    msgSelectWeek: '주차를 선택하세요.',
+    msgEnterPassword: '비밀번호를 입력하세요.',
+    msgNeedFileOrLink: '파일 또는 링크 중 하나는 반드시 제출해야 합니다.',
+    msgInvalidLink: '링크 형식이 올바르지 않습니다. https:// 또는 http://로 시작해야 합니다.',
+    msgUrlNotSet: '아직 웹 앱 URL이 설정되지 않았습니다. Apps Script 배포 후 상단의 WEB_APP_URL을 채워주세요.',
+    msgSubmitting: '제출 중입니다... (파일이 많으면 시간이 걸릴 수 있어요)',
+    msgSubmitOk: (name, id, week) => '제출 완료되었습니다. ' + name + '(' + id + ') / ' + week + '주차',
+    msgSubmitFail: err => '제출 실패: ' + err,
+    msgSubmitError: err => '제출 중 오류가 발생했습니다: ' + err,
+    msgEnterIdFirst: '학번을 먼저 선택하세요.',
+    msgEnterCurrentPw: '현재 비밀번호를 입력하세요.',
+    msgEnterNewPw: '새 비밀번호를 입력하세요.',
+    msgPwMismatch: '새 비밀번호가 서로 일치하지 않습니다.',
+    msgUrlNotSet2: '아직 웹 앱 URL이 설정되지 않았습니다.',
+    msgChangingPw: '비밀번호 변경 중입니다...',
+    msgPwChanged: '비밀번호가 변경되었습니다. 다음부터는 새 비밀번호로 제출하세요.',
+    msgPwChangeFail: err => '비밀번호 변경 실패: ' + err,
+    msgPwChangeError: err => '비밀번호 변경 중 오류가 발생했습니다: ' + err,
+    unknownError: '알 수 없는 오류'
+  },
+  en: {
+    pageTitle: 'NLP Assignment Submission (Week 1-15)',
+    eyebrowRest: 'Natural Language Processing',
+    h1: 'NLP Assignment Submission<br>(Week 1 – 15)',
+    tagline: 'Submit your assignment for Week 1 through Week 15',
+    sub: 'Enter your student ID and name to submit. Files (PPT/Word/etc.) can vary in number per week and multiple files are allowed; links are limited to one per week. At least one file or link is required.',
+    studentIdLabel: 'Student ID',
+    studentIdPlaceholder: 'Select your student ID',
+    namePlaceholder: 'Fills in automatically once you pick your ID',
+    nameLabel: 'Name',
+    weekLabel: 'Week',
+    weekPlaceholder: 'Select week',
+    weekOpt: n => 'Week ' + n,
+    passwordLabel: 'Password',
+    passwordPlaceholder: 'The password you use is registered on your first submission',
+    pwToggleShow: 'Want to change your password?',
+    pwToggleHide: 'Cancel password change',
+    newPasswordLabel: 'New password',
+    newPasswordPlaceholder: 'Enter a new password',
+    newPasswordConfirmLabel: 'Confirm new password',
+    newPasswordConfirmPlaceholder: 'Enter the new password again',
+    pwChangeBtn: 'Change password',
+    filesLabel: 'Files',
+    filesHint: '(multiple allowed, any file type)',
+    dropText: 'Click or drag files here',
+    dropHint: 'Add files one at a time or all at once — any file type',
+    clearFiles: 'Clear all',
+    removeAria: 'Remove',
+    linkLabel: 'Link',
+    linkHint: '(optional, one per week)',
+    linkPlaceholder: 'https://ai-canvas.io/project/... or https://colab.research.google.com/...',
+    submitBtn: 'Submit',
+    statusLink: '📊 View submission status',
+    footer: 'Your student ID must be unique. The password you use on your first submission is registered as your password for that ID.',
+    msgEnterId: 'Please select your student ID.',
+    msgEnterName: 'Please enter your name.',
+    msgSelectWeek: 'Please select a week.',
+    msgEnterPassword: 'Please enter your password.',
+    msgNeedFileOrLink: 'You must submit at least one file or a link.',
+    msgInvalidLink: 'That link is not a valid URL. It must start with https:// or http://.',
+    msgUrlNotSet: 'The web app URL has not been configured yet. Deploy the Apps Script and fill in WEB_APP_URL above.',
+    msgSubmitting: 'Submitting... (this may take a moment if you have many files)',
+    msgSubmitOk: (name, id, week) => 'Submitted successfully. ' + name + ' (' + id + ') / Week ' + week,
+    msgSubmitFail: err => 'Submission failed: ' + err,
+    msgSubmitError: err => 'An error occurred while submitting: ' + err,
+    msgEnterIdFirst: 'Please select your student ID first.',
+    msgEnterCurrentPw: 'Please enter your current password.',
+    msgEnterNewPw: 'Please enter a new password.',
+    msgPwMismatch: 'The new passwords do not match.',
+    msgUrlNotSet2: 'The web app URL has not been configured yet.',
+    msgChangingPw: 'Changing password...',
+    msgPwChanged: 'Password changed. Use the new password next time you submit.',
+    msgPwChangeFail: err => 'Password change failed: ' + err,
+    msgPwChangeError: err => 'An error occurred while changing your password: ' + err,
+    unknownError: 'Unknown error'
+  }
+};
+
+let LANG = 'en';
+function t(key){ return T[LANG][key]; }
+
+function applyLanguage(){
+  document.documentElement.lang = LANG;
+  document.getElementById('pageTitle').textContent = t('pageTitle');
+  document.getElementById('eyebrow-rest').textContent = t('eyebrowRest');
+  document.getElementById('t-h1').innerHTML = t('h1');
+  document.getElementById('t-tagline').textContent = t('tagline');
+  document.getElementById('t-sub').textContent = t('sub');
+  document.getElementById('t-studentIdLabel').textContent = t('studentIdLabel');
+  document.getElementById('t-nameLabel').textContent = t('nameLabel');
+  document.getElementById('nameDisplay').placeholder = t('namePlaceholder');
+  document.getElementById('t-weekLabel').textContent = t('weekLabel');
+  document.getElementById('t-passwordLabel').textContent = t('passwordLabel');
+  document.getElementById('password').placeholder = t('passwordPlaceholder');
+  document.getElementById('t-newPasswordLabel').textContent = t('newPasswordLabel');
+  document.getElementById('new-password').placeholder = t('newPasswordPlaceholder');
+  document.getElementById('t-newPasswordConfirmLabel').textContent = t('newPasswordConfirmLabel');
+  document.getElementById('new-password-confirm').placeholder = t('newPasswordConfirmPlaceholder');
+  document.getElementById('pw-change-btn').textContent = t('pwChangeBtn');
+  document.getElementById('t-filesLabel').childNodes[0].textContent = t('filesLabel') + ' ';
+  document.getElementById('t-filesHint').textContent = t('filesHint');
+  document.getElementById('t-dropText').textContent = t('dropText');
+  document.getElementById('t-dropHint').textContent = t('dropHint');
+  document.getElementById('clear-files').textContent = t('clearFiles');
+  document.getElementById('t-linkLabel').childNodes[0].textContent = t('linkLabel') + ' ';
+  document.getElementById('t-linkHint').textContent = t('linkHint');
+  document.getElementById('link').placeholder = t('linkPlaceholder');
+  document.getElementById('submit-btn').textContent = t('submitBtn');
+  document.getElementById('t-statusLink').textContent = t('statusLink');
+  document.getElementById('t-footer').textContent = t('footer');
+
+  const pwChangeOpen = document.getElementById('pw-change').style.display !== 'none';
+  document.getElementById('pw-toggle').textContent = pwChangeOpen ? t('pwToggleHide') : t('pwToggleShow');
+
+  renderStudentOptions();
+  renderWeekOptions();
+  renderFileList();
+}
+
+document.getElementById('lang-ko').addEventListener('click', () => setLang('ko'));
+document.getElementById('lang-en').addEventListener('click', () => setLang('en'));
+function setLang(lang){
+  LANG = lang;
+  document.getElementById('lang-ko').classList.toggle('active', lang === 'ko');
+  document.getElementById('lang-en').classList.toggle('active', lang === 'en');
+  applyLanguage();
+}
+
+const studentSelect = document.getElementById('studentSelect');
+const studentsById = [...STUDENTS].sort((a, b) => a.id.localeCompare(b.id));
+let selectedStudentName = '';
+const nameDisplay = document.getElementById('nameDisplay');
+
+function renderStudentOptions(){
+  const prevValue = studentSelect.value;
+  studentSelect.innerHTML = '<option value="" disabled' + (prevValue ? '' : ' selected') + '>' + t('studentIdPlaceholder') + '</option>' +
+    studentsById.map(s => `<option value="${s.id}" data-name="${s.name}">${s.id} (${s.name})</option>`).join('');
+  if (prevValue) studentSelect.value = prevValue;
+}
+
+studentSelect.addEventListener('change', () => {
+  const opt = studentSelect.selectedOptions[0];
+  selectedStudentName = opt ? opt.dataset.name : '';
+  nameDisplay.value = selectedStudentName;
+});
+
+const weekSelect = document.getElementById('week');
+function renderWeekOptions(){
+  const prevValue = weekSelect.value;
+  weekSelect.innerHTML = '<option value="" disabled' + (prevValue ? '' : ' selected') + '>' + t('weekPlaceholder') + '</option>' +
+    Array.from({length: TOTAL_WEEKS}, (_, i) => i + 1)
+      .map(n => `<option value="${n}">${t('weekOpt')(n)}</option>`).join('');
+  if (prevValue) weekSelect.value = prevValue;
+}
+
+// ══════════ 파일 선택 로직 (다중 파일 누적) ══════════
+const dropZone = document.getElementById('drop-zone');
+const fileInput = document.getElementById('file-input');
+const fileListEl = document.getElementById('file-list');
+const clearFilesEl = document.getElementById('clear-files');
+let selectedFiles = [];
+
+function formatSize(bytes){
+  if (bytes < 1024) return bytes + 'B';
+  if (bytes < 1024*1024) return (bytes/1024).toFixed(1) + 'KB';
+  return (bytes/1024/1024).toFixed(1) + 'MB';
+}
+
+function renderFileList(){
+  fileListEl.innerHTML = '';
+  selectedFiles.forEach((f, idx) => {
+    const chip = document.createElement('div');
+    chip.className = 'file-chip';
+    chip.innerHTML = `<span class="fname">${f.name}</span><span class="fsize">${formatSize(f.size)}</span><button type="button" aria-label="${t('removeAria')}">✕</button>`;
+    chip.querySelector('button').addEventListener('click', () => {
+      selectedFiles.splice(idx, 1);
+      renderFileList();
+    });
+    fileListEl.appendChild(chip);
+  });
+  clearFilesEl.style.display = selectedFiles.length ? 'inline-block' : 'none';
+}
+
+function addFiles(fileArr){
+  Array.from(fileArr).forEach(f => selectedFiles.push(f));
+  renderFileList();
+}
+
+dropZone.addEventListener('click', () => fileInput.click());
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('drag');
+  if (e.dataTransfer.files.length) addFiles(e.dataTransfer.files);
+});
+fileInput.addEventListener('change', () => {
+  if (fileInput.files.length) addFiles(fileInput.files);
+  fileInput.value = '';
+});
+clearFilesEl.addEventListener('click', () => { selectedFiles = []; renderFileList(); });
+
+function fileToBase64(file){
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result.split(',')[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+function setSubmitStatus(text, type){
+  const el = document.getElementById('submit-status');
+  el.textContent = text;
+  el.className = 'show ' + type;
+}
+
+function isValidUrl(str){
+  try {
+    const u = new URL(str);
+    return u.protocol === 'http:' || u.protocol === 'https:';
+  } catch (e) {
+    return false;
+  }
+}
+
+async function fetchWithRetry(url, options, retries){
+  retries = retries === undefined ? 1 : retries;
+  try {
+    return await fetch(url, options);
+  } catch (err) {
+    if (retries > 0) {
+      await new Promise(r => setTimeout(r, 1200));
+      return fetchWithRetry(url, options, retries - 1);
+    }
+    throw err;
+  }
+}
+
+// ══════════ 비밀번호 변경 토글 ══════════
+const pwToggle = document.getElementById('pw-toggle');
+const pwChange = document.getElementById('pw-change');
+pwToggle.addEventListener('click', () => {
+  const showing = pwChange.style.display !== 'none';
+  pwChange.style.display = showing ? 'none' : 'block';
+  pwToggle.textContent = showing ? t('pwToggleShow') : t('pwToggleHide');
+});
+
+document.getElementById('pw-change-btn').addEventListener('click', async () => {
+  const studentId = studentSelect.value;
+  const password = document.getElementById('password').value;
+  const newPassword = document.getElementById('new-password').value;
+  const newPasswordConfirm = document.getElementById('new-password-confirm').value;
+
+  if (!studentId) { setSubmitStatus(t('msgEnterIdFirst'), 'err'); return; }
+  if (!password) { setSubmitStatus(t('msgEnterCurrentPw'), 'err'); return; }
+  if (!newPassword) { setSubmitStatus(t('msgEnterNewPw'), 'err'); return; }
+  if (newPassword !== newPasswordConfirm) { setSubmitStatus(t('msgPwMismatch'), 'err'); return; }
+  if (WEB_APP_URL.indexOf('http') !== 0) { setSubmitStatus(t('msgUrlNotSet2'), 'err'); return; }
+
+  setSubmitStatus(t('msgChangingPw'), 'loading');
+  try {
+    const res = await fetchWithRetry(WEB_APP_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action: 'changePassword', studentId, password, newPassword, lang: LANG })
+    });
+    const result = await res.json();
+    if (result.ok) {
+      setSubmitStatus(t('msgPwChanged'), 'ok');
+      document.getElementById('password').value = newPassword;
+      document.getElementById('new-password').value = '';
+      document.getElementById('new-password-confirm').value = '';
+      pwChange.style.display = 'none';
+      pwToggle.textContent = t('pwToggleShow');
+    } else {
+      setSubmitStatus(t('msgPwChangeFail')(result.error || t('unknownError')), 'err');
+    }
+  } catch (err) {
+    setSubmitStatus(t('msgPwChangeError')(err.message), 'err');
+  }
+});
+
+// ══════════ 제출 로직 ══════════
+document.getElementById('submit-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const studentId = studentSelect.value;
+  const name = selectedStudentName;
+  const week = document.getElementById('week').value;
+  const password = document.getElementById('password').value;
+  const link = document.getElementById('link').value.trim();
+  const btn = document.getElementById('submit-btn');
+
+  if (!studentId) { setSubmitStatus(t('msgEnterId'), 'err'); return; }
+  if (!week) { setSubmitStatus(t('msgSelectWeek'), 'err'); return; }
+  if (!password) { setSubmitStatus(t('msgEnterPassword'), 'err'); return; }
+  if (!selectedFiles.length && !link) {
+    setSubmitStatus(t('msgNeedFileOrLink'), 'err'); return;
+  }
+  if (link && !isValidUrl(link)) {
+    setSubmitStatus(t('msgInvalidLink'), 'err'); return;
+  }
+  if (WEB_APP_URL.indexOf('http') !== 0) {
+    setSubmitStatus(t('msgUrlNotSet'), 'err'); return;
+  }
+
+  btn.disabled = true;
+  setSubmitStatus(t('msgSubmitting'), 'loading');
+
+  try {
+    const files = await Promise.all(selectedFiles.map(async f => ({
+      fileBase64: await fileToBase64(f),
+      fileName: f.name,
+      mimeType: f.type || 'application/octet-stream'
+    })));
+
+    const payload = { action: 'submit', studentId, name, week, password, files, link, lang: LANG };
+
+    const res = await fetchWithRetry(WEB_APP_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload)
+    });
+    const result = await res.json();
+
+    if (result.ok) {
+      setSubmitStatus(t('msgSubmitOk')(name, studentId, week), 'ok');
+      selectedFiles = []; renderFileList();
+      document.getElementById('link').value = '';
+    } else {
+      setSubmitStatus(t('msgSubmitFail')(result.error || t('unknownError')), 'err');
+    }
+  } catch (err) {
+    setSubmitStatus(t('msgSubmitError')(err.message), 'err');
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+// ══════════ 초기화 ══════════
+applyLanguage();
+</script>
+</body>
+</html>
